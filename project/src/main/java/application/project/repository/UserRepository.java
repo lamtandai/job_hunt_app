@@ -1,6 +1,5 @@
 package application.project.repository;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 

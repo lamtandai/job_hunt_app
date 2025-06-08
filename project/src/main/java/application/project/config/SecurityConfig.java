@@ -1,31 +1,37 @@
 package application.project.config;
 
+import java.util.Collection;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 
-import application.project.util.ExceptionHandler.CustomAuthenticationEntryPoint;
+import application.project.domain.UserDetailsCustom;
 import application.project.util.SecurityUtil.SecurityUtil;
 
 @Configuration
@@ -84,12 +90,13 @@ public class SecurityConfig {
         ) throws Exception {
         http
                 .csrf(c -> c.disable())
-                
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                    .requestMatchers("/", "/login").permitAll()
+                    .requestMatchers("/", "/login", "/register").permitAll()
                     .anyRequest().authenticated())
 
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                .oauth2ResourceServer((oauth2) 
+                    -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToUserPrincipalConverter()))
                     .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                     
@@ -103,7 +110,20 @@ public class SecurityConfig {
         return http.build();
     }
 
+    private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtToUserPrincipalConverter() {
+    return jwt -> {
+        Long   userId   = jwt.getClaim("user_account_id");
+        String username = jwt.getSubject();
+        Collection<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList(
+            jwt.getClaimAsString("scope")
+        );
+        // build a lightweight principal—no DB needed
+        UserDetailsCustom principal = new UserDetailsCustom(userId, username, auths);
+        return new UsernamePasswordAuthenticationToken(principal, jwt, auths);
+    };
+}
+}
     
 
    
-}
+

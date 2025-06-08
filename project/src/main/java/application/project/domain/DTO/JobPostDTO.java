@@ -1,15 +1,13 @@
 package application.project.domain.DTO;
-
-import java.time.LocalDate;
 import java.util.List;
 
 import application.project.domain.Enumeration.JobStatus.JobStatus;
 import application.project.domain.Skill.Skill;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data 
-@AllArgsConstructor 
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class JobPostDTO {
     private String title;
     private String jobPosition;

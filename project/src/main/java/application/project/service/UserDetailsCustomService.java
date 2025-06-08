@@ -11,28 +11,30 @@ import org.springframework.stereotype.Component;
 
 import application.project.domain.Enumeration.UserRole.UserRole;
 import application.project.domain.User.User;
+import application.project.domain.UserDetailsCustom;
 
-@Component("userDetailsService")
-public class UserDetailsCustom implements UserDetailsService{
+@Component
+public class UserDetailsCustomService implements UserDetailsService{
     private final UserService userService;
-
-    public UserDetailsCustom(UserService userService) {
+    public UserDetailsCustomService(UserService userService) {
         this.userService = userService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
+        
         Optional <User> userOpt = this.userService.handleGetOneUserByUsername(username);
-
+           
         if (userOpt.isPresent()){
             User currentUser = userOpt.get();
-            return new org.springframework.security.core.userdetails.User(
+            return new UserDetailsCustom(
+                currentUser.getUser_account_id(),
                 currentUser.getUsername(),
                 currentUser.getPassword(),
                 Collections.singletonList(new SimpleGrantedAuthority(UserRole.Job_seeker.name()))
             );
         }
-        throw new UsernameNotFoundException("User Not found!");
+        
+        throw new UsernameNotFoundException("User not Found");
     }
-    
 }

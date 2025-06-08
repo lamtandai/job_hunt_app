@@ -1,16 +1,18 @@
 package application.project.domain.Job;
 
-import java.time.LocalDate;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.time.Instant;
 
-@Data 
-@AllArgsConstructor 
+import application.project.domain.Enumeration.JobStatus.JobStatus;
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class Job {
     private int job_id;
     private String job_name;
-    private int industry_id;
-    private LocalDate created_at;
-    private LocalDate updated_at;
+    private short industry_id;
+    
+    private Instant created_at;
+    private Instant updated_at;
 }

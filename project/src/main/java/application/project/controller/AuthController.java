@@ -45,6 +45,7 @@ public class AuthController {
 
         // a mechanism that allows the user have just login to use his/her account
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        
         return ResponseEntity.ok().body(
             RestResponse
                 .builder()

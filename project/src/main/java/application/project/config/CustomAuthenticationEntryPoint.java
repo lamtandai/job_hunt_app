@@ -1,4 +1,4 @@
-package application.project.util.ExceptionHandler;
+package application.project.config;
 
 import java.io.IOException;
 
@@ -27,6 +27,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint{
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
+        
         this.delegate.commence(request, response, authException);
         
         RestResponse<Object> res = RestResponse

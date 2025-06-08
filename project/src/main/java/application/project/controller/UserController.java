@@ -60,4 +60,11 @@ public class UserController {
                 .map(user -> ResponseEntity.ok().body(user))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<User> userRegister(@RequestBody UserRegisterDTO userRegisterDto){
+        return this.userService.handleCreateUser(userRegisterDto)
+            .map(newUser -> ResponseEntity.status(HttpStatus.CREATED).body(newUser))
+            .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE));
+    }
 }

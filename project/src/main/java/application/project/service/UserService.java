@@ -6,11 +6,9 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import application.project.domain.DTO.LoginDTO;
 import application.project.domain.DTO.UserAccountDTO;
 import application.project.domain.DTO.UserRegisterDTO;
 import application.project.domain.User.User;
-import application.project.repository.SearchingFieldRepository;
 import application.project.repository.UserRepository;
 
 @Service

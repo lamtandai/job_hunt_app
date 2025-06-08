@@ -22,25 +22,6 @@ CREATE TABLE IF NOT EXISTS skills(
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
-CREATE TABLE IF NOT EXISTS companies(
-    company_id INT AUTO_INCREMENT PRIMARY KEY,
-    company_name VARCHAR(50),
-    numberFollower INT,
-    size TINYINT,
-    logo VARCHAR(255),
-    industry_id TINYINT NOT NULL,
-    description VARCHAR(255),
-    location VARCHAR(255),
-    website_url VARCHAR(500),
-    verified BOOLEAN DEFAULT FALSE,
-
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (industry_id) REFERENCES industries(industry_id)
-);
-
 CREATE TABLE IF NOT EXISTS user_accounts(
     user_account_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR (255) NOT NULL,
@@ -50,13 +31,36 @@ CREATE TABLE IF NOT EXISTS user_accounts(
     user_role VARCHAR(10) NOT NULL,
     active BOOLEAN DEFAULT TRUE,
     phone VARCHAR(15),
-    company_id INT, 
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (company_id)  REFERENCES companies(company_id)
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ); 
+
+CREATE TABLE IF NOT EXISTS companies(
+    company_id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(50) NOT NULL,
+    description MEDIUMTEXT NOT NULL,
+    industry_id TINYINT NOT NULL,
+
+    numberOfFollower INT NOT NULL DEFAULT 0,
+    size TINYINT NOT NULL DEFAULT 0,
+    logo VARCHAR(255),
+    location VARCHAR(255),
+    website_url VARCHAR(500),
+    verified BOOLEAN DEFAULT FALSE,
+
+    created_by_user_id BIGINT,
+    updated_by_user_id BIGINT,
+
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (industry_id) REFERENCES industries(industry_id),
+    FOREIGN KEY (created_by_user_id) REFERENCES user_accounts(user_account_id),
+    FOREIGN KEY (updated_by_user_id) REFERENCES user_accounts(user_account_id)
+
+);
+
 
 CREATE TABLE IF NOT EXISTS user_logs (
     user_account_id BIGINT AUTO_INCREMENT PRIMARY KEY,

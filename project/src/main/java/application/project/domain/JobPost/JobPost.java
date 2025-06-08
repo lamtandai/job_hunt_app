@@ -1,28 +1,27 @@
 package application.project.domain.JobPost;
 
-import java.time.LocalDate;
-
+import java.time.Instant;
 import application.project.domain.Enumeration.JobStatus.JobStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data 
-@AllArgsConstructor 
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class JobPost {
     private long job_post_id;
+    private long job_id;
     private long recruiter_id;
-    private String job_post_title;
-    private String position;
-    private String description;
-    private String salary_range;
-    private JobStatus job_status;
-    private short number_of_recruitment; 
-    
-    private LocalDate posted_at;
-    private LocalDate expired_at;
 
-    private LocalDate created_at;
-    private LocalDate updated_at;
+    private short number_of_recruitment; 
+    private String salary_range;
+    private String description;
+    
+    private JobStatus job_status;
+    
+    private Instant posted_at;
+    private Instant expired_at;
+
+    private Instant created_at;
+    private Instant updated_at;
     
 
 

@@ -33,7 +33,7 @@ public class GlobalException {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RestResponse<Object>> preValidationLoginException(MethodArgumentNotValidException exception){
+    public ResponseEntity<RestResponse<Object>> validateException(MethodArgumentNotValidException exception){
         BindingResult bindingResult = exception.getBindingResult();
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 

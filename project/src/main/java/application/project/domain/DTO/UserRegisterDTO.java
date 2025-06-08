@@ -1,10 +1,9 @@
 package application.project.domain.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data
-@AllArgsConstructor 
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class UserRegisterDTO {
     
     private String username;
