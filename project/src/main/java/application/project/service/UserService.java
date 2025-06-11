@@ -3,9 +3,13 @@ package application.project.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import application.project.domain.Company.Company;
+import application.project.domain.DTO.PageMetadata;
+import application.project.domain.DTO.ResultReturnedDTO;
 import application.project.domain.DTO.UserAccountDTO;
 import application.project.domain.DTO.UserRegisterDTO;
 import application.project.domain.User.User;
@@ -27,8 +31,18 @@ public class UserService {
         return this.userRepository.createUser(userDto).flatMap(this::handleGetOneUser);
     }
 
-    public List<User> handleGetAllUser() {
-        return this.userRepository.findAll().get();
+    public ResultReturnedDTO handleGetAllUser(int page, int size) {
+
+        Page<User> userPage = this.userRepository.findAllByPage(page, size);
+        
+        PageMetadata meta = new PageMetadata();
+        meta.setCurrentPage(userPage.getNumber() + 1);
+        meta.setElementPerPage(userPage.getSize());
+        meta.setTotalPage(userPage.getTotalPages());
+        
+        
+        return new ResultReturnedDTO(meta, userPage.getContent());
+        
     }
 
     public Optional<User> handleGetOneUser(long id) {

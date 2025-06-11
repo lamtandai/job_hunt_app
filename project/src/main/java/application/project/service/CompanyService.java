@@ -1,13 +1,21 @@
 package application.project.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import application.project.domain.Company.Company;
 import application.project.domain.DTO.CompanyDTO;
+import application.project.domain.DTO.PageMetadata;
+import application.project.domain.DTO.ResultReturnedDTO;
+
 import application.project.repository.CompanyRepository;
+import application.project.util.SecurityUtil.SecurityUtil;
 
 @Service
 public class CompanyService {
@@ -15,6 +23,7 @@ public class CompanyService {
 
     public CompanyService(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
+
     }
 
     public Optional<Company> handleCreateCompany(CompanyDTO companyDTO){
@@ -25,44 +34,74 @@ public class CompanyService {
         return this.companyRepository.findOne(id);
     }
 
-    public Optional<List<Company>> handleGetAllCompanies(){
-        return this.companyRepository.findAll();
+    public ResultReturnedDTO handleGetAllCompanies(int page, int size){
+        Page<Company> companyPage = this.companyRepository.findAllByPage(page, size);
+        
+        PageMetadata meta = new PageMetadata();
+        meta.setCurrentPage(companyPage.getNumber() + 1);
+        meta.setElementPerPage(companyPage.getSize());
+        meta.setTotalPage(companyPage.getTotalPages());
+        
+        
+        return new ResultReturnedDTO(meta, companyPage.getContent());
+        
     }
-    
+   
     public Optional<Company> handleUpdateCompany(int company_id, CompanyDTO companyDto){
         return this.companyRepository.findOne(company_id).map(company -> {
             // Example: update fields from companyDto to company
-            if (companyDto.getCompany_name() != null){
-                company.setCompany_name(companyDto.getCompany_name());
+            List <String> conditions = new ArrayList<>();
+            Map <String, Object> value = new HashMap<>();
+
+            if ( companyDto.getCompany_name() != null && !companyDto.getCompany_name().equals(company.getCompany_name())){
+                conditions.add("company_name = :company_name");
+                value.put("company_name",companyDto.getCompany_name());
             }
 
-            if (companyDto.getDescription() != null){
-                company.setDescription(companyDto.getDescription());
+            if (companyDto.getDescription() != null && !companyDto.getDescription().equals(company.getDescription())){
+                conditions.add("description = :description");
+                value.put("description",companyDto.getDescription());
             }
-            if (companyDto.getIndustry_id() != null){
-                company.setIndustry_id(companyDto.getIndustry_id());
+            if (!companyDto.getIndustry_id().equals(company.getIndustry_id())){
+                conditions.add("industry_id = :industry_id");
+                value.put("industry_id",companyDto.getIndustry_id());
+                
             }
-            if (companyDto.getLocation() != null){
-                company.setLocation(companyDto.getLocation());
-            }
-
-            if (companyDto.getLogo() != null){
-                company.setLogo(companyDto.getLogo());
-            }
-
-            if (companyDto.getNumberOfFollower() != company.getNumberOfFollower()){
-                company.setNumberOfFollower(companyDto.getNumberOfFollower());
+            if (companyDto.getLocation() != null && !companyDto.getLocation().equals(company.getLocation())){
+                value.put("location",companyDto.getLocation());
+                conditions.add("location = :location" );
             }
 
-            if (companyDto.getSize() != company.getSize()){
-                company.setSize(companyDto.getSize());
+            if (companyDto.getLogo() != null && !companyDto.getLogo().equals(company.getLogo())){
+                value.put("logo",companyDto.getLogo());
+                conditions.add("logo = :logo");
+            }
+
+            if (companyDto.getNumberOfFollower() != 0 && companyDto.getNumberOfFollower() != company.getNumberOfFollower()){
+                conditions.add("numberOfFollower = :numberOfFollower");
+                value.put("numberOfFollower",companyDto.getNumberOfFollower());
+                
+            }
+
+            if (companyDto.getSize() != 0 && companyDto.getSize() != company.getSize()){
+                conditions.add("size = :size");
+                value.put("size",companyDto.getSize());
+            }
+
+            if (companyDto.getWebsite_url()!= null && !companyDto.getWebsite_url().equals(company.getWebsite_url())){
+                conditions.add("website_url = :website_url");
+                value.put("website_url",companyDto.getWebsite_url());
             }
 
             if (companyDto.isVerified() != company.isVerified()){
-                company.setVerified(companyDto.isVerified());
+                conditions.add("verified = :verified" );
+                value.put("verified",companyDto.isVerified());
             }
 
-            return this.companyRepository.update(company).orElseThrow();
+            conditions.add(" updated_by_user_id = :updated_by_user_id" );
+            value.put("updated_by_user_id", Long.valueOf(SecurityUtil.getCurrentUserLogin().get()));
+            
+            return this.companyRepository.update(company_id, conditions, value).orElseThrow();
         });
     }
 

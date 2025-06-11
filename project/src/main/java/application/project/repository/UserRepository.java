@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,7 +22,8 @@ import application.project.domain.User.User;
 @Repository
 public class UserRepository {
     private final NamedParameterJdbcTemplate jdbc;
-
+    private final short Page_num_minimum = 1;
+    private final short Limit_minimum = 10;
     public UserRepository(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
 
@@ -44,12 +49,32 @@ public class UserRepository {
 
     }
 
-    public Optional<List<User>> findAll() {
-        String findAll_query = "SELECT * FROM user_accounts";
-        return Optional.ofNullable(this.jdbc.query(
-                findAll_query,
-                new BeanPropertyRowMapper<>(User.class)));
+    
+        public Page<User> findAllByPage(int page, int size) {
+        String querySql = "SELECT * FROM user_accounts LIMIT :limit OFFSET :offset";
+
+        int effectivePage = Math.max(Page_num_minimum, page);
+        int effectiveLimit = Math.max(Limit_minimum, size);
+
+        Pageable pg = PageRequest.of(effectivePage - 1, effectiveLimit);
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("limit", effectiveLimit)
+                .addValue("offset", pg.getOffset());
+
+        List<User> users = this.jdbc.query(
+                querySql,
+                params,
+                new BeanPropertyRowMapper<>(User.class)
+        );
+
+        // Get total count for pagination
+        String countSql = "SELECT COUNT(*) FROM user_accounts";
+        int total = this.jdbc.queryForObject(countSql, new MapSqlParameterSource(), Integer.class);
+
+        return new PageImpl<>(users, pg, total);
     }
+    
 
     public Optional<User> find(long id) {
 

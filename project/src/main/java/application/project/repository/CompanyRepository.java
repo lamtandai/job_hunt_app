@@ -1,9 +1,14 @@
 package application.project.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -15,8 +20,11 @@ import application.project.domain.Company.Company;
 import application.project.domain.DTO.CompanyDTO;
 
 @Repository
-public class CompanyRepository extends AuditRepository {
+public class CompanyRepository  {
     private final NamedParameterJdbcTemplate jdbc;
+
+    private final short Page_num_minimum = 1;
+    private final short Limit_minimum = 10;
 
     public CompanyRepository(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
@@ -31,12 +39,11 @@ public class CompanyRepository extends AuditRepository {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource()
-
                 .addValue("company_name", companyDTO.getCompany_name())
                 .addValue("industry_id", companyDTO.getIndustry_id())
-                .addValue("description", companyDTO.getDescription())
-                .addValue("created_by_user_id", auditUtil.currentUserId())
-                .addValue("updated_by_user_id", auditUtil.currentUserId());
+                .addValue("description", companyDTO.getDescription());
+                // .addValue("created_by_user_id", )
+                // .addValue("updated_by_user_id", );
 
         this.jdbc.update(insert_query, params, keyHolder, new String[] { "company_id" });
         Number key = keyHolder.getKey();
@@ -61,45 +68,43 @@ public class CompanyRepository extends AuditRepository {
         }
     }
 
-    public Optional<List<Company>> findAll() {
-        String findAll_query = "SELECT * FROM companies";
-        return Optional.ofNullable(this.jdbc.query(
-                findAll_query,
-                new BeanPropertyRowMapper<>(Company.class)));
+public Optional<Company> update(int company_id, List<String> conditions, Map <String, Object> value_for_update) {
+    String sql = "UPDATE companies SET " + String.join(", ", conditions) + " WHERE company_id = :company_id";
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("company_id", company_id);
+    value_for_update.forEach((key, value) -> {
+        params.addValue(key, value);
+        }
+    );  
+
+    int row_updated = this.jdbc.update(sql, params);
+
+    return row_updated != 0 ? findOne(company_id) : Optional.empty();
     }
 
-    public Optional<Company> update(Company company) {
-        String sql = """
-      UPDATE companies
-         SET
-           company_name        = :company_name,
-           description         = :description,
-           industry_id         = :industry_id,
-           numberOfFollower      = :numberOfFollower,
-           size                = :size,
-           logo                = :logo,
-           location            = :location,
-           website_url         = :website_url,
-           verified            = :verified,
-           updated_by_user_id  = :updated_by_user_id
-       WHERE company_id = :company_id
-    """;
+    public Page<Company> findAllByPage(int page, int size) {
+        String querySql = "SELECT * FROM companies LIMIT :limit OFFSET :offset";
+
+        int effectivePage = Math.max(Page_num_minimum, page);
+        int effectiveLimit = Math.max(Limit_minimum, size);
+
+        Pageable pg = PageRequest.of(effectivePage - 1, effectiveLimit);
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("company_id", company.getCompany_id())
-                .addValue("description", company.getDescription())
-                .addValue("industry_id", company.getIndustry_id())
-                .addValue("company_name", company.getCompany_name())
-                .addValue("numberOfFollower", company.getNumberOfFollower())
-                .addValue("size", company.getSize())
-                .addValue("logo", company.getLogo())
-                .addValue("location", company.getLocation())
-                .addValue("verified", company.isVerified())
-                .addValue("website_url", company.getWebsite_url())
-                .addValue("updated_by_user_id", auditUtil.currentUserId());
+                .addValue("limit", effectiveLimit)
+                .addValue("offset", pg.getOffset());
 
-        int row_updated = this.jdbc.update(sql, params);
+        List<Company> companies = this.jdbc.query(
+                querySql,
+                params,
+                new BeanPropertyRowMapper<>(Company.class)
+        );
 
-        return row_updated != 0 ? findOne(company.getCompany_id()) : Optional.empty();
+        // Get total count for pagination
+        String countSql = "SELECT COUNT(*) FROM companies";
+        int total = this.jdbc.queryForObject(countSql, new MapSqlParameterSource(), Integer.class);
+
+        return new PageImpl<>(companies, pg, total);
     }
 }

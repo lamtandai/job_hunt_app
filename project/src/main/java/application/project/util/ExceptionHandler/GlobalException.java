@@ -50,4 +50,15 @@ public class GlobalException {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<RestResponse<Object>> numberFormatException(NumberFormatException exception){
+        RestResponse<Object> res = RestResponse
+            .builder()
+            .setStatusCode(HttpStatus.BAD_REQUEST.value())
+            .setError(exception.getLocalizedMessage())
+            .setMessage("Invalid input with page number or page size! Please try again!")
+            .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
 }
