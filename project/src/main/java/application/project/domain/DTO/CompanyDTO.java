@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CompanyDTO {
+    
     @NotBlank(message = "This field cannot be blank!")
     private String company_name;
     @NotBlank(message = "This field cannot be blank!")
@@ -17,7 +18,7 @@ public class CompanyDTO {
     private long created_by_user_id;
     private long updated_by_user_id;
 
-    private int numberOfFollower;
+    private int number_of_follower;
     private int size;
     private String logo;
     private String location;

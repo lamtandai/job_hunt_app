@@ -13,23 +13,40 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import application.project.domain.Exception.EmailExistException;
+import application.project.domain.Exception.IdInvalidException;
 import application.project.domain.RestResponse.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
     @ExceptionHandler(value ={
         UsernameNotFoundException.class,
-        BadCredentialsException.class
+        BadCredentialsException.class,
+        EmailExistException.class,
+        IdInvalidException.class
     })
     public ResponseEntity<RestResponse<Object>>handleException(Exception ex){
         RestResponse<Object> res = RestResponse
             .builder()
             .setStatusCode(HttpStatus.BAD_REQUEST.value())
             .setError(ex.getMessage())
-            .setMessage("Retry again!")
+            .setMessage(ex.getMessage() + " Retry again!")
             .build();
         return ResponseEntity.badRequest().body(res);
+    }
+    @ExceptionHandler(value ={
+        NoResourceFoundException.class
+    })
+    public ResponseEntity<RestResponse<Object>>handleNotFoundException(Exception ex){
+        RestResponse<Object> res = RestResponse
+            .builder()
+            .setStatusCode(HttpStatus.NOT_FOUND.value())
+            .setError(ex.getMessage())
+            .setMessage(ex.getMessage() + " Retry again!")
+            .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -50,15 +67,15 @@ public class GlobalException {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
-    @ExceptionHandler(NumberFormatException.class)
-    public ResponseEntity<RestResponse<Object>> numberFormatException(NumberFormatException exception){
-        RestResponse<Object> res = RestResponse
-            .builder()
-            .setStatusCode(HttpStatus.BAD_REQUEST.value())
-            .setError(exception.getLocalizedMessage())
-            .setMessage("Invalid input with page number or page size! Please try again!")
-            .build();
+    // @ExceptionHandler(NumberFormatException.class)
+    // public ResponseEntity<RestResponse<Object>> numberFormatException(NumberFormatException exception){
+    //     RestResponse<Object> res = RestResponse
+    //         .builder()
+    //         .setStatusCode(HttpStatus.BAD_REQUEST.value())
+    //         .setError(exception.getLocalizedMessage())
+    //         .setMessage("Page not found! Please try again!")
+    //         .build();
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
-    }
+    //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    // }
 }

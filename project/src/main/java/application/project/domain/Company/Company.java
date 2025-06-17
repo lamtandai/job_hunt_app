@@ -15,7 +15,7 @@ public class Company {
     private String description;
     private short industry_id;
     
-    private int numberOfFollower;
+    private int number_of_follower;
     private int size;
     private String logo;
     private String location;

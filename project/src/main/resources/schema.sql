@@ -2,14 +2,14 @@ CREATE TABLE IF NOT EXISTS memberships(
     membership_id TINYINT AUTO_INCREMENT PRIMARY KEY,
     membership_name VARCHAR(20) NOT NULL,
     membership_fee VARCHAR(10) NOT NULL,
-    feature VARCHAR(255),
+    feature VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS industries(
     industry_id TINYINT AUTO_INCREMENT PRIMARY KEY,
-    industry_name VARCHAR(50),
+    industry_name VARCHAR(50) NOT NULL,
     activated BOOLEAN DEFAULT TRUE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS industries(
 
 CREATE TABLE IF NOT EXISTS skills(
     skill_id TINYINT AUTO_INCREMENT PRIMARY KEY,
-    skill_name VARCHAR(50),
+    skill_name VARCHAR(50) NOT NULL,
     activated BOOLEAN DEFAULT TRUE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS user_accounts(
     username VARCHAR (255) NOT NULL,
     password VARCHAR (255) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    avatar VARCHAR(255),
+    avatar VARCHAR(255) ,
     user_role VARCHAR(10) NOT NULL,
     active BOOLEAN DEFAULT TRUE,
     phone VARCHAR(15),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS companies(
     location VARCHAR(255),
     website_url VARCHAR(500),
     verified BOOLEAN DEFAULT FALSE,
-
+    refresh_token VARCHAR(256), 
     created_by_user_id BIGINT,
     updated_by_user_id BIGINT,
 

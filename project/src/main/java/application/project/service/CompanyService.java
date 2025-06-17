@@ -5,28 +5,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import application.project.domain.Company.Company;
 import application.project.domain.DTO.CompanyDTO;
 import application.project.domain.DTO.PageMetadata;
 import application.project.domain.DTO.ResultReturnedDTO;
-
 import application.project.repository.CompanyRepository;
+import application.project.repository.FilterableJdbcRepository;
+import application.project.repository.JdbcSpecification.IjdbcSpecification;
+import application.project.util.Mapper.UserMapper;
 import application.project.util.SecurityUtil.SecurityUtil;
 
 @Service
 public class CompanyService {
     private final CompanyRepository companyRepository;
-
-    public CompanyService(CompanyRepository companyRepository) {
+    private final FilterableJdbcRepository repo;
+    public CompanyService(CompanyRepository companyRepository, FilterableJdbcRepository repo)
+    {
         this.companyRepository = companyRepository;
-
+        this.repo = repo;
     }
 
     public Optional<Company> handleCreateCompany(CompanyDTO companyDTO){
+        companyDTO.setCreated_by_user_id(Long.parseLong(SecurityUtil.getCurrentUserLogin().get()));
+        companyDTO.setUpdated_by_user_id(Long.parseLong(SecurityUtil.getCurrentUserLogin().get()));
         return this.companyRepository.create(companyDTO).flatMap(this::handleGetOneCompany);
     }
 
@@ -37,13 +44,37 @@ public class CompanyService {
     public ResultReturnedDTO handleGetAllCompanies(int page, int size){
         Page<Company> companyPage = this.companyRepository.findAllByPage(page, size);
         
-        PageMetadata meta = new PageMetadata();
-        meta.setCurrentPage(companyPage.getNumber() + 1);
-        meta.setElementPerPage(companyPage.getSize());
-        meta.setTotalPage(companyPage.getTotalPages());
-        
+        PageMetadata meta = PageMetadata
+            .builder()
+            .currentPage(companyPage.getNumber())
+            .pageSize(companyPage.getSize())
+            .totalPage(companyPage.getTotalPages())
+            .totalElement(companyPage.getNumberOfElements())
+            .build();
         
         return new ResultReturnedDTO(meta, companyPage.getContent());
+        
+    }
+    
+    public <T>ResultReturnedDTO handleGetAllCompaniesByFilter(
+                               Class<T> targetType,
+                               IjdbcSpecification<T> spec,
+                               Pageable pageable){
+                                
+        Page<T> companyPage = this.repo.findAll(spec, pageable);
+        
+        PageMetadata meta = PageMetadata
+            .builder()
+            .currentPage(pageable.getPageNumber() + 1)
+            .pageSize(pageable.getPageSize())
+            .totalPage(companyPage.getTotalPages())
+            .totalElement(companyPage.getNumberOfElements())
+            .build();
+        
+        return new ResultReturnedDTO(
+                meta, 
+                companyPage.getContent()
+                );
         
     }
    
@@ -77,9 +108,9 @@ public class CompanyService {
                 conditions.add("logo = :logo");
             }
 
-            if (companyDto.getNumberOfFollower() != 0 && companyDto.getNumberOfFollower() != company.getNumberOfFollower()){
-                conditions.add("numberOfFollower = :numberOfFollower");
-                value.put("numberOfFollower",companyDto.getNumberOfFollower());
+            if (companyDto.getNumber_of_follower() != 0 && companyDto.getNumber_of_follower() != company.getNumber_of_follower()){
+                conditions.add("number_of_follower = :number_of_follower");
+                value.put("number_of_follower",companyDto.getNumber_of_follower());
                 
             }
 

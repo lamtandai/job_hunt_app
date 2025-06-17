@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,15 +20,18 @@ import org.springframework.web.server.ResponseStatusException;
 import application.project.domain.Company.Company;
 import application.project.domain.DTO.CompanyDTO;
 import application.project.domain.DTO.ResultReturnedDTO;
+
+import application.project.repository.JdbcSpecification.JdbcFilterSpecification;
 import application.project.service.CompanyService;
+import application.project.util.CustomAnnotation.Filterable;
 import jakarta.validation.Valid;
 
 @RestController
+
 public class CompanyController {
     private final CompanyService companyService;
-
+    
     public CompanyController(CompanyService companyService) {
-
         this.companyService = companyService;
     }
 
@@ -67,9 +69,17 @@ public class CompanyController {
     @PatchMapping("/companies/{id}")
     public ResponseEntity<Company> updateCompany(
         @PathVariable Integer id, 
-        @RequestBody CompanyDTO companyDto) {
+        @Valid @RequestBody CompanyDTO companyDto) {
         return this.companyService.handleUpdateCompany(id, companyDto)
                 .map(Company -> ResponseEntity.ok().body(Company))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+    @GetMapping ("companies/all_user")
+    public ResponseEntity<ResultReturnedDTO> list(
+        @Filterable JdbcFilterSpecification<Company> spec,
+        Pageable pageable) {
+        ResultReturnedDTO result = this.companyService.handleGetAllCompaniesByFilter(Company.class, spec, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
 }
+

@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import application.project.domain.Enumeration.UserRole.UserRole;
-import application.project.domain.User.User;
+import application.project.domain.User.User_account;
 import application.project.domain.UserDetailsCustom;
 
 @Component
@@ -23,10 +23,10 @@ public class UserDetailsCustomService implements UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
         
-        Optional <User> userOpt = this.userService.handleGetOneUserByUsername(username);
+        Optional <User_account> userOpt = this.userService.handleGetOneUserByUsername(username);
            
         if (userOpt.isPresent()){
-            User currentUser = userOpt.get();
+            User_account currentUser = userOpt.get();
             return new UserDetailsCustom(
                 currentUser.getUser_account_id(),
                 currentUser.getUsername(),

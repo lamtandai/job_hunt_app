@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import application.project.domain.Company.Company;
 import application.project.domain.DTO.CompanyDTO;
 
+
 @Repository
 public class CompanyRepository  {
     private final NamedParameterJdbcTemplate jdbc;
@@ -29,7 +30,7 @@ public class CompanyRepository  {
     public CompanyRepository(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
-
+    
     public Optional<Integer> create(CompanyDTO companyDTO) {
         String insert_query = """
                 INSERT INTO companies
@@ -41,9 +42,9 @@ public class CompanyRepository  {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("company_name", companyDTO.getCompany_name())
                 .addValue("industry_id", companyDTO.getIndustry_id())
-                .addValue("description", companyDTO.getDescription());
-                // .addValue("created_by_user_id", )
-                // .addValue("updated_by_user_id", );
+                .addValue("description", companyDTO.getDescription())
+                .addValue("created_by_user_id", companyDTO.getCreated_by_user_id())
+                .addValue("updated_by_user_id", companyDTO.getUpdated_by_user_id());
 
         this.jdbc.update(insert_query, params, keyHolder, new String[] { "company_id" });
         Number key = keyHolder.getKey();
@@ -94,6 +95,7 @@ public Optional<Company> update(int company_id, List<String> conditions, Map <St
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("limit", effectiveLimit)
                 .addValue("offset", pg.getOffset());
+
 
         List<Company> companies = this.jdbc.query(
                 querySql,

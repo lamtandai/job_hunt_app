@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class User {
+public class User_account {
     private long user_account_id;
     private String username;
     private String password;
@@ -17,11 +17,13 @@ public class User {
     private String avatar;
     private String phone;
     private UserRole user_role;
+    private String refreshToken;
     
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
 
+    
     
 }

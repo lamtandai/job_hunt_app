@@ -1,9 +1,8 @@
 package application.project.controller;
 
-
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,64 +15,78 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import application.project.domain.Company.Company;
 import application.project.domain.DTO.ResultReturnedDTO;
-import application.project.domain.DTO.UserAccountDTO;
-import application.project.domain.DTO.UserRegisterDTO;
-import application.project.domain.User.User;
+import application.project.domain.DTO.UserDTO.UserRegisterDTO;
+import application.project.domain.DTO.UserDTO.UserResponseDTO;
+import application.project.domain.DTO.UserDTO.UserUpdateDTO;
+import application.project.domain.Exception.EmailExistException;
+import application.project.domain.Exception.IdInvalidException;
+import application.project.domain.User.User_account;
+import application.project.repository.JdbcSpecification.JdbcFilterSpecification;
 import application.project.service.UserService;
-
+import application.project.util.CustomAnnotation.Filterable;
+import application.project.util.Mapper.UserMapper;
+import jakarta.validation.Valid;
 
 @RestController
 public class UserController {
     private final UserService userService;
-    
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody UserRegisterDTO userDTO){
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRegisterDTO userDTO)
+            throws EmailExistException {
+        if (this.userService.handleUserEmailExist(userDTO.getEmail())) {
+            throw new EmailExistException("This email has been existed already");
+        }
         return this.userService.handleCreateUser(userDTO)
-            .map(newUser -> ResponseEntity.status(HttpStatus.CREATED).body(newUser))
-            .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE));
-        
+                .map(newUser -> ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toUserResponse(newUser)))
+                .orElseThrow();
+
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) throws IdInvalidException {
         return this.userService.handleGetOneUser(id)
-            .map(user -> ResponseEntity.status(HttpStatus.ACCEPTED).body(user))
-            .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .map(user -> ResponseEntity.status(HttpStatus.ACCEPTED).body(UserMapper.toUserResponse(user)))
+                .orElseThrow(() -> new IdInvalidException(id));
     }
-    
+
     @GetMapping("/users")
-    public ResponseEntity<ResultReturnedDTO> getAllUsers( 
-            @RequestParam Optional<String> page,
-            @RequestParam Optional<String> size) {
+    public ResponseEntity<ResultReturnedDTO> getAllUsers(
+            @Filterable JdbcFilterSpecification<User_account> spec,
+            Pageable pageable) {
 
-        String currentPage = page.isPresent() ? page.get() : "";
-        String pageSize = size.isPresent() ? size.get() : "";
-
-        ResultReturnedDTO result = this.userService.handleGetAllUser(Integer.parseInt(currentPage), Integer.parseInt(pageSize));
+        ResultReturnedDTO result = this.userService.handleGetAllUserByFilter(spec, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Long> deleteUser(@PathVariable Long id){
+    public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
     }
 
     @PatchMapping("/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserAccountDTO userAccountDto){
-        return this.userService. handleUpdateUser(id, userAccountDto)
-                .map(user -> ResponseEntity.ok().body(user))
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id,
+            @RequestBody UserUpdateDTO userAccountDto) {
+        return this.userService.handleUpdateUser(id, userAccountDto)
+                .map(user -> ResponseEntity.ok().body(UserMapper.toUserResponse(user)))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> userRegister(@RequestBody UserRegisterDTO userRegisterDto){
+    public ResponseEntity<UserResponseDTO> userRegister(@Valid @RequestBody UserRegisterDTO userRegisterDto)
+            throws EmailExistException {
+        boolean emailExist = this.userService.handleUserEmailExist(userRegisterDto.getEmail());
+        if (emailExist) {
+            throw new EmailExistException("This email has been existed already!");
+        }
         return this.userService.handleCreateUser(userRegisterDto)
-            .map(newUser -> ResponseEntity.status(HttpStatus.CREATED).body(newUser))
-            .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE));
+                .map(newUser -> ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toUserResponse(newUser)))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE));
     }
 }

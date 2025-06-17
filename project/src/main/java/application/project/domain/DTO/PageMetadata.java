@@ -1,29 +1,14 @@
 package application.project.domain.DTO;
 
+import lombok.Builder;
+import lombok.Getter;
+
+@Builder
+@Getter
 public class PageMetadata {
-    private int currentPage;
-    private int elementPerPage;
-    private int totalPage;
-
-    public int getCurrentPage() {
-        return currentPage;
-    }
-    public void setCurrentPage(int currentPage) {
-        this.currentPage = currentPage;
-    }
-    public int getElementPerPage() {
-        return elementPerPage;
-    }
-    public void setElementPerPage(int elementPerPage) {
-        this.elementPerPage = elementPerPage;
-    }
-    public int getTotalPage() {
-        return totalPage;
-    }
-    public void setTotalPage(int totalPage) {
-        this.totalPage = totalPage;
-    }
+    private final int currentPage;
+    private final int pageSize;
+    private final int totalPage;
+    private final int totalElement;
     
-
-   
 }
