@@ -1,10 +1,10 @@
-package application.project.domain.DTO;
+package application.project.domain.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 @Getter
 @Setter
-public class ApplicationDTO {
+public class ReqApplicationDTO {
     private String resume;
     private String cover_letter;
 }

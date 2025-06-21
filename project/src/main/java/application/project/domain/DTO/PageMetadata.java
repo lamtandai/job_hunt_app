@@ -1,4 +1,4 @@
-package application.project.domain.DTO;
+package application.project.domain.dto;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,14 +1,13 @@
-package application.project.domain.DTO;
+package application.project.domain.dto.request;
 import java.util.List;
 
 import application.project.domain.Enumeration.JobStatus.JobStatus;
 import application.project.domain.Skill.Skill;
-
 import lombok.Getter;
 import lombok.Setter;
 @Getter
 @Setter
-public class JobPostDTO {
+public class ReqJobPostDTO {
     private String title;
     private String jobPosition;
     private List <Skill> skills;

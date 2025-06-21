@@ -1,19 +1,18 @@
-package application.project.domain.DTO;
+package application.project.domain.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 @Getter
 @Setter
-public class CompanyDTO {
+public class ReqCompanyDTO {
     
     @NotBlank(message = "This field cannot be blank!")
     private String company_name;
     @NotBlank(message = "This field cannot be blank!")
     private String description;
-    @NotNull(message = "This field cannot be blank!")
-    private Short industry_id;
+
+    private short industry_id;
     
     private long created_by_user_id;
     private long updated_by_user_id;

@@ -1,6 +1,7 @@
 package application.project.config;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -28,10 +29,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 
 import application.project.domain.UserDetailsCustom;
+import application.project.domain.dto.response.ResLoginDTO.UserLoginInfo;
 import application.project.util.SecurityUtil.SecurityUtil;
 
 @Configuration
@@ -41,6 +44,9 @@ public class SecurityConfig {
     @Value("${security.authentication.jwt.base64-secret}")
     private String jwtKey;
 
+    @Value("${basepath.baseApi}")
+    private String basePath;
+    
     // used to grant user's authority
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
@@ -92,7 +98,11 @@ public class SecurityConfig {
                 .csrf(c -> c.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                    .requestMatchers("/", "/login", "/register").permitAll()
+                    .requestMatchers("/", 
+                        this.basePath + "auth/login", 
+                        this.basePath + "auth/refresh", 
+                        this.basePath + "users/register")
+                        .permitAll()
                     .anyRequest().authenticated())
 
                 .oauth2ResourceServer((oauth2) 
@@ -111,14 +121,19 @@ public class SecurityConfig {
     }
 
     private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtToUserPrincipalConverter() {
-    return jwt -> {
-        Long   userId   = jwt.getClaim("user_account_id");
+    return jwt -> { 
+        ObjectMapper mapper =  new ObjectMapper();
+
+        Map<String, Object> rawMap  = jwt.getClaim(SecurityUtil.USER_KEY);
+
+        UserLoginInfo userInfo = mapper.convertValue(rawMap, UserLoginInfo.class);
+
         String username = jwt.getSubject();
         Collection<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList(
             jwt.getClaimAsString("scope")
         );
         // build a lightweight principal—no DB needed
-        UserDetailsCustom principal = new UserDetailsCustom(userId, username, auths);
+        UserDetailsCustom principal = new UserDetailsCustom(userInfo.getId(), username, auths);
         return new UsernamePasswordAuthenticationToken(principal, jwt, auths);
     };
 }

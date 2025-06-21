@@ -1,4 +1,4 @@
-package application.project.service;
+package application.project.config;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import application.project.domain.Enumeration.UserRole.UserRole;
 import application.project.domain.User.User_account;
 import application.project.domain.UserDetailsCustom;
+import application.project.service.UserService;
 
 @Component
 public class UserDetailsCustomService implements UserDetailsService{
@@ -31,7 +31,7 @@ public class UserDetailsCustomService implements UserDetailsService{
                 currentUser.getUser_account_id(),
                 currentUser.getUsername(),
                 currentUser.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(UserRole.Job_seeker.name()))
+                Collections.singletonList(new SimpleGrantedAuthority(currentUser.getUser_role().name()))
             );
         }
         

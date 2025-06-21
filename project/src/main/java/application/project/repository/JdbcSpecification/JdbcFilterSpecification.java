@@ -9,6 +9,7 @@ import org.springframework.core.convert.ConversionService;
 import application.project.CustomSpecification.Core.ComparisonNode;
 import application.project.CustomSpecification.Core.FilterExpression;
 import application.project.CustomSpecification.Core.LogicalNode;
+import application.project.util.Pluralize.Pluralize;
 
 public class JdbcFilterSpecification<T> implements IjdbcSpecification<T> {
     private final FilterExpression ast;
@@ -85,25 +86,10 @@ public class JdbcFilterSpecification<T> implements IjdbcSpecification<T> {
         return s.replaceAll("([a-z])([A-Z])","$1_$2").toLowerCase();
     }
 
-    private String pluralize(String word) {
-    // 1) If it ends in a vowel + “y”, just add “s” (e.g. “key” → “keys”)
-    if (word.matches(".*[aeiou]y$")) {
-        return word + "s";
-    }
-    // 2) If it ends in consonant + “y”, drop “y” add “ies” (“company” → “companies”)
-    if (word.endsWith("y")) {
-        return word.substring(0, word.length() - 1) + "ies";
-    }
-    // 3) If it ends in s, x, z, “ch” or “sh”, add “es” (“class” → “classes”)
-    if (word.matches(".*(s|x|z|ch|sh)$")) {
-        return word + "es";
-    }
-    // 4) Otherwise just add “s”
-    return word + "s";
-    }
+
     private String deriveTableName(Class<?> cls) {
         // e.g. Company.class -> "companies"
-        return camelToSnake(pluralize(cls.getSimpleName()));
+        return camelToSnake(Pluralize.pluralize(cls.getSimpleName()));
     }
 
     @Override

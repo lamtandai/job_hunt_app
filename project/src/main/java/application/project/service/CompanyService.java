@@ -5,20 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import application.project.domain.Company.Company;
-import application.project.domain.DTO.CompanyDTO;
-import application.project.domain.DTO.PageMetadata;
-import application.project.domain.DTO.ResultReturnedDTO;
+import application.project.domain.dto.PageMetadata;
+import application.project.domain.dto.ResultReturnedDTO;
+import application.project.domain.dto.request.ReqCompanyDTO;
 import application.project.repository.CompanyRepository;
 import application.project.repository.FilterableJdbcRepository;
 import application.project.repository.JdbcSpecification.IjdbcSpecification;
-import application.project.util.Mapper.UserMapper;
+
 import application.project.util.SecurityUtil.SecurityUtil;
 
 @Service
@@ -31,7 +31,7 @@ public class CompanyService {
         this.repo = repo;
     }
 
-    public Optional<Company> handleCreateCompany(CompanyDTO companyDTO){
+    public Optional<Company> handleCreateCompany(ReqCompanyDTO companyDTO){
         companyDTO.setCreated_by_user_id(Long.parseLong(SecurityUtil.getCurrentUserLogin().get()));
         companyDTO.setUpdated_by_user_id(Long.parseLong(SecurityUtil.getCurrentUserLogin().get()));
         return this.companyRepository.create(companyDTO).flatMap(this::handleGetOneCompany);
@@ -78,7 +78,7 @@ public class CompanyService {
         
     }
    
-    public Optional<Company> handleUpdateCompany(int company_id, CompanyDTO companyDto){
+    public Optional<Company> handleUpdateCompany(int company_id, ReqCompanyDTO companyDto){
         return this.companyRepository.findOne(company_id).map(company -> {
             // Example: update fields from companyDto to company
             List <String> conditions = new ArrayList<>();
@@ -93,7 +93,7 @@ public class CompanyService {
                 conditions.add("description = :description");
                 value.put("description",companyDto.getDescription());
             }
-            if (!companyDto.getIndustry_id().equals(company.getIndustry_id())){
+            if (companyDto.getIndustry_id() != 0 && companyDto.getIndustry_id() != company.getIndustry_id()){
                 conditions.add("industry_id = :industry_id");
                 value.put("industry_id",companyDto.getIndustry_id());
                 

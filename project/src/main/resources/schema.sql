@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS user_accounts(
     user_role VARCHAR(10) NOT NULL,
     active BOOLEAN DEFAULT TRUE,
     phone VARCHAR(15),
+    refresh_token MEDIUMTEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
@@ -42,7 +43,7 @@ CREATE TABLE IF NOT EXISTS companies(
     description MEDIUMTEXT NOT NULL,
     industry_id TINYINT NOT NULL,
 
-    numberOfFollower INT NOT NULL DEFAULT 0,
+    number_of_follower INT NOT NULL DEFAULT 0,
     size TINYINT NOT NULL DEFAULT 0,
     logo VARCHAR(255),
     location VARCHAR(255),

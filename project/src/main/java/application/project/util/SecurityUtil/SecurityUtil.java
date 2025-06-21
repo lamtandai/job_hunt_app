@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,48 +11,72 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import application.project.domain.UserDetailsCustom;
+import application.project.domain.dto.response.ResLoginDTO;
 
 // import application.project.domain.UserDetailsCustom;
 
 @Service
 public class SecurityUtil {
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
-    public static final String AUTHORITIES_KEY = "auth";
-
+    public static final String AUTHORITIES_KEY = "Permission";
+    public static final String USER_KEY = "User";
     private final JwtEncoder jwtEncoder;
 
-    @Value("${security.authentication.jwt.token-validity-in-seconds}")
-    private long tokenValidityInSeconds;
+    private final JwtDecoder jwtDecoder;
 
-    public SecurityUtil(JwtEncoder jwtEncoder) {
-        this.jwtEncoder = jwtEncoder;
+    @Value("${security.authentication.jwt.access-token-validity-in-seconds}")
+    private long accessTokenValidityInSeconds;
+
+    @Value("${security.authentication.jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenValidityInSeconds;
+
+    public long getRefreshTokenValidityInSeconds() {
+        return refreshTokenValidityInSeconds;
     }
 
-    public String generateJwtToken(Authentication authentication) {
+    public SecurityUtil(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
+        this.jwtEncoder = jwtEncoder;
+        this.jwtDecoder = jwtDecoder;
+    }
+
+    
+    public String generateAccessToken(ResLoginDTO.UserLoginInfo dto) {
         Instant now = Instant.now();
-        Instant validity = now.plus(this.tokenValidityInSeconds, ChronoUnit.SECONDS);
-        UserDetailsCustom principal = (UserDetailsCustom)authentication.getPrincipal();
+        Instant validity = now.plus(this.accessTokenValidityInSeconds, ChronoUnit.SECONDS);
+        
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuedAt(now)
             .expiresAt(validity)
-            .subject(authentication.getName())
-            .claim("user_account_id", principal.getUser_account_id())
-            .claim("user_role", principal.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()))
-                
+            .subject(dto.getUserName())
+            .claim(USER_KEY, dto)    
+            .claim(AUTHORITIES_KEY, Arrays.asList("ROLE_USER_CREATE", "ROLE_USER_UPDATE"))
+            .build();
+
+        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
+
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+    }
+
+     public String generateRefreshToken(ResLoginDTO dto) {
+        Instant now = Instant.now();
+        Instant validity = now.plus(this.refreshTokenValidityInSeconds, ChronoUnit.SECONDS);
+        // @formatter:off
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+            .issuedAt(now)
+            .expiresAt(validity)
+            .subject(dto.getUserLoginInfo().getUserName())
+            .claim(USER_KEY, dto)    
             .build();
 
             
@@ -61,6 +84,7 @@ public class SecurityUtil {
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
+
      public static Optional <String> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
@@ -130,5 +154,8 @@ public class SecurityUtil {
 
     private static Stream<String> getAuthorities(Authentication authentication) {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
+    }
+    public Jwt decodeRefreshToken(String token) {
+        return jwtDecoder.decode(token);
     }
 }

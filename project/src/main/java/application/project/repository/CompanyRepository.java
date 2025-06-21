@@ -17,7 +17,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import application.project.domain.Company.Company;
-import application.project.domain.DTO.CompanyDTO;
+import application.project.domain.dto.request.ReqCompanyDTO;
 
 
 @Repository
@@ -31,18 +31,18 @@ public class CompanyRepository  {
         this.jdbc = jdbc;
     }
     
-    public Optional<Integer> create(CompanyDTO companyDTO) {
+    public Optional<Integer> create(ReqCompanyDTO companyDTO) {
         String insert_query = """
                 INSERT INTO companies
-                (company_name, industry_id, description, created_by_user_id, updated_by_user_id)
-                VALUES (:company_name, :industry_id, :description, :created_by_user_id, :updated_by_user_id)
+                (company_name, description, location, created_by_user_id, updated_by_user_id)
+                VALUES (:company_name, :description, :location, :created_by_user_id, :updated_by_user_id)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("company_name", companyDTO.getCompany_name())
-                .addValue("industry_id", companyDTO.getIndustry_id())
                 .addValue("description", companyDTO.getDescription())
+                .addValue("location", companyDTO.getLocation())
                 .addValue("created_by_user_id", companyDTO.getCreated_by_user_id())
                 .addValue("updated_by_user_id", companyDTO.getUpdated_by_user_id());
 

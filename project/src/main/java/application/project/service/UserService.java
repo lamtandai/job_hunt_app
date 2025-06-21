@@ -12,11 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import application.project.domain.DTO.PageMetadata;
-import application.project.domain.DTO.ResultReturnedDTO;
-import application.project.domain.DTO.UserDTO.UserRegisterDTO;
-import application.project.domain.DTO.UserDTO.UserResponseDTO;
-import application.project.domain.DTO.UserDTO.UserUpdateDTO;
+import application.project.domain.dto.PageMetadata;
+import application.project.domain.dto.ResultReturnedDTO;
+import application.project.domain.dto.request.ReqUserRegisterDTO;
+import application.project.domain.dto.request.ReqUserUpdateDTO;
+import application.project.domain.dto.response.ResUserDTO;
 import application.project.domain.User.User_account;
 import application.project.repository.FilterableJdbcRepository;
 import application.project.repository.UserRepository;
@@ -35,7 +35,7 @@ public class UserService {
         this.repo = repo;
     }
 
-    public Optional<User_account> handleCreateUser(UserRegisterDTO userDto) {
+    public Optional<User_account> handleCreateUser(ReqUserRegisterDTO userDto) {
         String hash_password = this.passwordEncoder.encode(userDto.getPassword());
         userDto.setPassword(hash_password);
         return this.userRepository.createUser(userDto).flatMap(this::handleGetOneUser);
@@ -65,7 +65,7 @@ public class UserService {
         return this.userRepository.findByUserName(username);
     }
 
-    public Optional<User_account> handleUpdateUser(long id, UserUpdateDTO dto) {
+    public Optional<User_account> handleUpdateUser(long id, ReqUserUpdateDTO dto) {
         return this.userRepository.find(id).map(
                 user -> {
 
@@ -119,7 +119,7 @@ public class UserService {
         
         @SuppressWarnings("unchecked")
         Page<User_account> casted = (Page<User_account>) userPage;
-        List<UserResponseDTO> userDtos = casted.getContent().stream()
+        List<ResUserDTO> userDtos = casted.getContent().stream()
                 .map(UserMapper::toUserResponse)
                 .collect(Collectors.toList());
 
@@ -127,6 +127,21 @@ public class UserService {
 
     }
 
+    public void handleUpdateUserToken(String Token, String userName){
+        Optional<User_account> UaOpt = this.handleGetOneUserByUsername(userName);
+        if (UaOpt.isPresent()){
+            this.userRepository.updateUserRefreshToken(Token, UaOpt.get().getUser_account_id());
+        }
+        
+    }
+
+    public Optional<User_account> handleGetUserByUsernameAndRefreshToken(String token, String userName){
+        return this.userRepository.findByUserNameAndRefreshToken(token, userName);
+    }
+
+    public void handleDeleteUserRefreshToken(long id){
+        this.userRepository.deleteUserRefreshToken(id);
+    }
 }
 
         

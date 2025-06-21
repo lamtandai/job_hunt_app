@@ -1,13 +1,13 @@
-package application.project.domain.DTO.UserDTO;
+package application.project.domain.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.validation.constraints.Pattern;
 
 @Getter
 @Setter
-public class UserRegisterDTO {
+public class ReqUserRegisterDTO {
     
     @NotBlank(message="This field cannot be blank!")
     private String username;

@@ -1,8 +1,8 @@
-package application.project.domain.DTO.UserDTO;
+package application.project.domain.dto.request;
 
 import application.project.domain.Enumeration.UserRole.UserRole;
 
-public class UserUpdateDTO {
+public class ReqUserUpdateDTO {
 
     private String username;
     private String password;
@@ -12,7 +12,7 @@ public class UserUpdateDTO {
     private UserRole user_role;
    
 
-    public UserUpdateDTO(String username, String email, String avatar, String phone, UserRole user_role) {
+    public ReqUserUpdateDTO(String username, String email, String avatar, String phone, UserRole user_role) {
         this.username = username;
         this.email = email;
         this.avatar = avatar;

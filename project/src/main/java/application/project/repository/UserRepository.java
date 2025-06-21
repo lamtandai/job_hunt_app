@@ -16,9 +16,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import application.project.domain.DTO.UserDTO.UserRegisterDTO;
 import application.project.domain.Enumeration.UserRole.UserRole;
 import application.project.domain.User.User_account;
+import application.project.domain.dto.request.ReqUserRegisterDTO;
 
 @Repository
 public class UserRepository {
@@ -31,7 +31,7 @@ public class UserRepository {
 
     }
 
-    public Optional<Long> createUser(UserRegisterDTO newUser) {
+    public Optional<Long> createUser(ReqUserRegisterDTO newUser) {
         String insert_query = "INSERT INTO user_accounts (username, password, email, user_role) VALUES (:username, :password, :email, :user_role)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -123,6 +123,22 @@ public class UserRepository {
         }
     }
 
+    public Optional<User_account> findByUserNameAndRefreshToken(String token, String username) {
+        String find_query = "Select * from user_accounts where username = :username AND  refresh_token:= token";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+            .addValue("username", username)
+            .addValue("refresh_token", token);
+
+        try {
+            User_account user = this.jdbc.queryForObject(
+                    find_query,
+                    params,
+                    new BeanPropertyRowMapper<>(User_account.class));
+            return Optional.of(user);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
     public Optional<User_account> findByUserEmail(String email) {
         String find_query = "Select * from user_accounts where email = :email";
         MapSqlParameterSource params = new MapSqlParameterSource("email", email);
@@ -138,5 +154,27 @@ public class UserRepository {
         }
     }
 
+    public void updateUserRefreshToken(String Token, long id){
+        
+        String update_query = "UPDATE user_accounts SET refresh_token = :refresh_token WHERE user_account_id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("refresh_token", Token);
+
+        this.jdbc.update(update_query, params);
+
+    }
+
+    public void deleteUserRefreshToken(long id){
+        String query = "UPDATE user_accounts SET refresh_token = :refresh_token WHERE user_account_id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("refresh_token", "");
+
+        this.jdbc.update(query, params);
+    }
+    
     
 }

@@ -17,11 +17,9 @@ public class User_account {
     private String avatar;
     private String phone;
     private UserRole user_role;
-    private String refreshToken;
+    private String refresh_token;
     
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
 
     
