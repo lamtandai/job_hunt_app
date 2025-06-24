@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.ServletException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import application.project.domain.RestResponse.RestResponse;
+import application.project.domain.dto.response.RestResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

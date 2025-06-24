@@ -2,7 +2,7 @@ package application.project.domain.dto.response;
 
 import java.time.Instant;
 
-import application.project.domain.Enumeration.UserRole.UserRole;
+import application.project.domain.Enumeration.UserRole;
 import application.project.domain.User.User_account;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,24 +10,25 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResUserDTO {
-    private long user_account_id;
-    private String username;
-    private String email;
-    private String avatar;
-    private String phone;
-    private UserRole user_role;
+    private long us_account_id;
+    private String us_name;
+    private String us_email;
+    private String us_avatar;
+    private String us_phone;
+    private UserRole us_role;
+    private int us_cpn_id;
+    private Instant us_createdAt;
+    private Instant us_updatedAt;
 
-    private Instant createdAt;
-    private Instant updatedAt;
-
-    public ResUserDTO (User_account user){
-        this.user_account_id = user.getUser_account_id();
-        this.username = user.getUsername();
-        this.email = user.getEmail();
-        this.phone = user.getPhone();
-        this.user_role = user.getUser_role();
-        this.avatar = user.getAvatar();
-        this.createdAt = user.getCreatedAt();
-        this.updatedAt = user.getUpdatedAt();
+    public ResUserDTO(User_account user) {
+        this.us_account_id = user.getUs_account_id();
+        this.us_name = user.getUs_name();
+        this.us_email = user.getUs_email();
+        this.us_phone = user.getUs_phone();
+        this.us_role = user.getUs_role();
+        this.us_avatar = user.getUs_avatar();
+        this.us_createdAt = user.getUs_createdAt();
+        this.us_updatedAt = user.getUs_updatedAt();
+        this.us_cpn_id = user.getUs_cpn_id();
     }
 }

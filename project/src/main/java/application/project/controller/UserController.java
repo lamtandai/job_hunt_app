@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import application.project.domain.dto.ResultReturnedDTO;
 import application.project.domain.dto.request.ReqUserRegisterDTO;
 import application.project.domain.dto.request.ReqUserUpdateDTO;
 import application.project.domain.dto.response.ResUserDTO;
+import application.project.domain.dto.response.ResultReturnedDTO;
 import application.project.domain.Exception.EmailExistException;
 import application.project.domain.Exception.IdInvalidException;
 import application.project.domain.User.User_account;
+import application.project.domain.dto.response.RestResponse;
 import application.project.repository.JdbcSpecification.JdbcFilterSpecification;
 import application.project.service.UserService;
 import application.project.util.CustomAnnotation.Filterable;
@@ -39,6 +40,9 @@ public class UserController {
         if (this.userService.handleUserEmailExist(userDTO.getEmail())) {
             throw new EmailExistException("This email has been existed already");
         }
+        if (this.userService.handleUserNameExist(userDTO.getUsername())) {
+            throw new EmailExistException("This username has been existed already");
+        }
         return this.userService.handleCreateUser(userDTO)
                 .map(newUser -> ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toUserResponse(newUser)))
                 .orElseThrow();
@@ -46,7 +50,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResUserDTO> getUser(@PathVariable Long id) throws IdInvalidException {
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable Long id) throws IdInvalidException {
         return this.userService.handleGetOneUser(id)
                 .map(user -> ResponseEntity.status(HttpStatus.ACCEPTED).body(UserMapper.toUserResponse(user)))
                 .orElseThrow(() -> new IdInvalidException(id));
@@ -62,12 +66,18 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
+    public ResponseEntity<RestResponse> deleteUserById(@PathVariable Long id) {
+        this.userService.handleDeleteUserById(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                             .body(RestResponse
+                                    .builder()
+                                    .setMessage("Delete successfully!")
+                                    .setStatusCode(HttpStatus.ACCEPTED.value())
+                                    .build());
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ResUserDTO> updateUser(@PathVariable Long id,
+    public ResponseEntity<ResUserDTO> updateUserById(@PathVariable Long id,
             @RequestBody ReqUserUpdateDTO userAccountDto) {
         return this.userService.handleUpdateUser(id, userAccountDto)
                 .map(user -> ResponseEntity.ok().body(UserMapper.toUserResponse(user)))
@@ -77,6 +87,10 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ResUserDTO> userRegister(@Valid @RequestBody ReqUserRegisterDTO userRegisterDto)
             throws EmailExistException {
+
+        if (this.userService.handleUserNameExist(userRegisterDto.getUsername())) {
+            throw new EmailExistException("This username has been existed already");
+        }
         boolean emailExist = this.userService.handleUserEmailExist(userRegisterDto.getEmail());
         if (emailExist) {
             throw new EmailExistException("This email has been existed already!");

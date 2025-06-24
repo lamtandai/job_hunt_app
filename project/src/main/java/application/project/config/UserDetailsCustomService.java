@@ -28,10 +28,10 @@ public class UserDetailsCustomService implements UserDetailsService{
         if (userOpt.isPresent()){
             User_account currentUser = userOpt.get();
             return new UserDetailsCustom(
-                currentUser.getUser_account_id(),
-                currentUser.getUsername(),
-                currentUser.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(currentUser.getUser_role().name()))
+                currentUser.getUs_account_id(),
+                currentUser.getUs_name(),
+                currentUser.getUs_password(),
+                Collections.singletonList(new SimpleGrantedAuthority(currentUser.getUs_role().name()))
             );
         }
         

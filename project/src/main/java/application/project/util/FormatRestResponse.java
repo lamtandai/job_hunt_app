@@ -8,7 +8,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import application.project.domain.RestResponse.RestResponse;
+import application.project.domain.dto.response.RestResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 @ControllerAdvice

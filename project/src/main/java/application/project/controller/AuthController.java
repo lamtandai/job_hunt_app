@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import application.project.domain.RestResponse.RestResponse;
 import application.project.domain.User.User_account;
 import application.project.domain.UserDetailsCustom;
 import application.project.domain.dto.request.ReqLoginDTO;
 import application.project.domain.dto.response.ResLoginDTO;
+import application.project.domain.dto.response.RestResponse;
 import application.project.service.UserService;
 import application.project.util.SecurityUtil.SecurityUtil;
 import jakarta.servlet.ServletException;
@@ -99,8 +99,8 @@ public class AuthController {
         User_account user = this.userService.handleGetOneUser(userId).get();
         
         ResLoginDTO.UserLoginInfo userInfo = new ResLoginDTO.UserLoginInfo(
-                user.getUser_account_id(),
-                user.getUsername());
+                user.getUs_account_id(),
+                user.getUs_name());
 
         ResLoginDTO.UserGetAccount userAccount = new ResLoginDTO.UserGetAccount(userInfo);
 
@@ -124,8 +124,8 @@ public class AuthController {
         if (user.isPresent()){
                 User_account realUser = user.get();
                 ResLoginDTO.UserLoginInfo userInfo = new ResLoginDTO.UserLoginInfo(
-                     realUser.getUser_account_id(),
-                     realUser.getUsername());
+                     realUser.getUs_account_id(),
+                     realUser.getUs_name());
 
         String access_token = this.securityUtil.generateAccessToken(userInfo);
 

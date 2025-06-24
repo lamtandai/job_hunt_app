@@ -36,7 +36,9 @@ public List<Token> tokenize(String input) {
                 int j=i; while (j<n && Character.isWhitespace(input.charAt(j))) j++;
                 if (j<n && "=<>:".indexOf(input.charAt(j))>=0) {
                     out.add(new Token(Token.Type.IDENT, tok));
-                } else {
+                } else if (tok.equals("is")){
+                    out.add(new Token(Token.Type.IDENT, tok));
+                } else{
                     out.add(new Token(Token.Type.VALUE, tok));
                 }
                 continue;

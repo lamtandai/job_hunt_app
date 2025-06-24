@@ -12,8 +12,6 @@ import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import application.project.controller.AuthController;
 import application.project.util.Pluralize.Pluralize;
 
 @Configuration

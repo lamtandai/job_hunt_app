@@ -1,4 +1,4 @@
-package application.project.domain.RestResponse;
+package application.project.domain.dto.response;
 
 public class RestResponse<T> {
 

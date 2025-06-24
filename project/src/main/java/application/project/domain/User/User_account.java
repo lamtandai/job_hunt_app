@@ -1,27 +1,32 @@
 package application.project.domain.User;
+
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import application.project.domain.Enumeration.UserRole.UserRole;
+import application.project.domain.Enumeration.UserGender;
+import application.project.domain.Enumeration.UserRole;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User_account {
-    private long user_account_id;
-    private String username;
-    private String password;
-    private String email;
-    private String avatar;
-    private String phone;
-    private UserRole user_role;
-    private String refresh_token;
-    
-    private Instant createdAt;
-    private Instant updatedAt;
+    private long us_account_id;
+    private String us_name;
+    private String us_password;
+    private String us_email;
+    private String us_avatar;
+    private String us_phone;
+    private String us_location;
+    private UserRole us_role;
+    private UserGender us_gender;
+    private String us_refresh_token;
+    private int us_cpn_id;
+    private boolean us_deleted;
+    private Instant us_createdAt;
+    private Instant us_updatedAt;
 
-    
-    
 }

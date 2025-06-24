@@ -17,7 +17,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import application.project.domain.Exception.EmailExistException;
 import application.project.domain.Exception.IdInvalidException;
-import application.project.domain.RestResponse.RestResponse;
+import application.project.domain.dto.response.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {

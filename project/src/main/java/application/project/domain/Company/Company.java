@@ -2,31 +2,36 @@ package application.project.domain.Company;
 
 import java.time.Instant;
 
-
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Company {
 
-    private int company_id;
-    private String company_name;
-    private String description;
+    private int cpn_id;
+    private String cpn_name;
+    private String cpn_description;
 
-    private short industry_id;
-    private int number_of_follower;
-    private int size;
-    
-    private String logo;
-    private String location;
-    private String website_url;
-    private boolean verified;
+    private short cpn_idt_id;
+    private int cpn_number_of_follower;
+    private int cpn_size;
 
-    private Long created_by_user_id; 
-    private Long updated_by_user_id; 
+    private String cpn_logo;
+    private String cpn_location;
+    private String cpn_website_url;
+    private boolean cpn_verified;
 
-    private Instant createdAt;
-    private Instant updatedAt;
+    private boolean cpn_deleted;
+
+    private Long cpn_created_by;
+    private Long cpn_updated_by;
+
+    private Instant cpn_createdAt;
+    private Instant cpn_updatedAt;
 
 }

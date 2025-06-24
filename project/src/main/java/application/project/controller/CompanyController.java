@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import application.project.domain.Company.Company;
-import application.project.domain.dto.ResultReturnedDTO;
 import application.project.domain.dto.request.ReqCompanyDTO;
+import application.project.domain.dto.response.ResultReturnedDTO;
 import application.project.domain.Exception.IdInvalidException;
+import application.project.domain.dto.response.RestResponse;
 import application.project.repository.JdbcSpecification.JdbcFilterSpecification;
 import application.project.service.CompanyService;
 import application.project.util.CustomAnnotation.Filterable;
@@ -57,11 +58,6 @@ public class CompanyController {
     //     return ResponseEntity.status(HttpStatus.OK).body(result);
     // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteCompany(@PathVariable Integer id) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
-    }
-
     @PatchMapping("/{id}")
     public ResponseEntity<Company> updateCompany(
         @PathVariable String id, 
@@ -77,5 +73,20 @@ public class CompanyController {
         ResultReturnedDTO result = this.companyService.handleGetAllCompaniesByFilter(Company.class, spec, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<RestResponse> deleteCompany (
+        @PathVariable Integer id
+    ) {
+        this.companyService.handleDeleteCompany(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                RestResponse
+                .builder()
+                .setMessage("Delete successfully")
+                .setStatusCode(HttpStatus.OK.value())
+                .build());
+    }
 }
+            
+
 

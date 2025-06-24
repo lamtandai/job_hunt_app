@@ -19,9 +19,8 @@ import org.springframework.stereotype.Repository;
 import application.project.domain.Company.Company;
 import application.project.domain.dto.request.ReqCompanyDTO;
 
-
 @Repository
-public class CompanyRepository  {
+public class CompanyRepository {
     private final NamedParameterJdbcTemplate jdbc;
 
     private final short Page_num_minimum = 1;
@@ -30,23 +29,23 @@ public class CompanyRepository  {
     public CompanyRepository(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
-    
+
     public Optional<Integer> create(ReqCompanyDTO companyDTO) {
         String insert_query = """
                 INSERT INTO companies
-                (company_name, description, location, created_by_user_id, updated_by_user_id)
-                VALUES (:company_name, :description, :location, :created_by_user_id, :updated_by_user_id)
+                (cpn_name, cpn_description, cpn_location, cpn_created_by, cpn_updated_by)
+                VALUES (:cpn_name, :cpn_description, :cpn_location, :cpn_created_by, :cpn_updated_by)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("company_name", companyDTO.getCompany_name())
-                .addValue("description", companyDTO.getDescription())
-                .addValue("location", companyDTO.getLocation())
-                .addValue("created_by_user_id", companyDTO.getCreated_by_user_id())
-                .addValue("updated_by_user_id", companyDTO.getUpdated_by_user_id());
+                .addValue("cpn_name", companyDTO.getCompany_name())
+                .addValue("cpn_description", companyDTO.getDescription())
+                .addValue("cpn_location", companyDTO.getLocation())
+                .addValue("cpn_created_by", companyDTO.getCreated_by())
+                .addValue("cpn_updated_by", companyDTO.getUpdated_by());
 
-        this.jdbc.update(insert_query, params, keyHolder, new String[] { "company_id" });
+        this.jdbc.update(insert_query, params, keyHolder, new String[] { "cpn_id" });
         Number key = keyHolder.getKey();
 
         return key != null
@@ -55,7 +54,7 @@ public class CompanyRepository  {
     }
 
     public Optional<Company> findOne(int id) {
-        String find_query = "SELECT * FROM companies WHERE company_id = :id";
+        String find_query = "SELECT * FROM companies WHERE cpn_id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
 
         try {
@@ -69,19 +68,25 @@ public class CompanyRepository  {
         }
     }
 
-public Optional<Company> update(int company_id, List<String> conditions, Map <String, Object> value_for_update) {
-    String sql = "UPDATE companies SET " + String.join(", ", conditions) + " WHERE company_id = :company_id";
+    public Optional<Company> update(int company_id, List<String> conditions, Map<String, Object> value_for_update) {
+        String sql = "UPDATE companies SET " + String.join(", ", conditions) + " WHERE cpn_id = :cpn_id";
 
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("company_id", company_id);
-    value_for_update.forEach((key, value) -> {
-        params.addValue(key, value);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("cpn_id", company_id);
+        value_for_update.forEach((key, value) -> {
+            params.addValue(key, value);
+        });
+
+        // Optionally handle cpn_refresh_token and cpn_is_deleted if present in
+        // value_for_update
+        
+        if (value_for_update.containsKey("cpn_deleted")) {
+            params.addValue("cpn_deleted", value_for_update.get("cpn_is_deleted"));
         }
-    );  
 
-    int row_updated = this.jdbc.update(sql, params);
+        int row_updated = this.jdbc.update(sql, params);
 
-    return row_updated != 0 ? findOne(company_id) : Optional.empty();
+        return row_updated != 0 ? findOne(company_id) : Optional.empty();
     }
 
     public Page<Company> findAllByPage(int page, int size) {
@@ -96,17 +101,24 @@ public Optional<Company> update(int company_id, List<String> conditions, Map <St
                 .addValue("limit", effectiveLimit)
                 .addValue("offset", pg.getOffset());
 
-
         List<Company> companies = this.jdbc.query(
                 querySql,
                 params,
-                new BeanPropertyRowMapper<>(Company.class)
-        );
+                new BeanPropertyRowMapper<>(Company.class));
 
         // Get total count for pagination
         String countSql = "SELECT COUNT(*) FROM companies";
         int total = this.jdbc.queryForObject(countSql, new MapSqlParameterSource(), Integer.class);
 
         return new PageImpl<>(companies, pg, total);
+    }
+    
+    public void delete(int cpn_id){
+        String delete_query = "UPDATE companies SET cpn_deleted = :cpn_deleted WHERE cpn_id = :cpn_id";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("cpn_id", cpn_id)
+                .addValue("cpn_deleted", true);
+
+        this.jdbc.update(delete_query, params);
     }
 }

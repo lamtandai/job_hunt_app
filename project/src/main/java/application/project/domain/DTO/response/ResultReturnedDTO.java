@@ -1,4 +1,4 @@
-package application.project.domain.dto;
+package application.project.domain.dto.response;
 
 
 public class ResultReturnedDTO {
