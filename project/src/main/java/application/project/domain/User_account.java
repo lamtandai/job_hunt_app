@@ -1,4 +1,4 @@
-package application.project.domain.User;
+package application.project.domain;
 
 import java.time.Instant;
 
@@ -14,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User_account {
+
     private long us_account_id;
     private String us_name;
     private String us_password;
@@ -24,9 +25,11 @@ public class User_account {
     private UserRole us_role;
     private UserGender us_gender;
     private String us_refresh_token;
-    private int us_cpn_id;
+    private Integer us_cpn_id;
+    
     private boolean us_deleted;
     private Instant us_createdAt;
     private Instant us_updatedAt;
+
 
 }

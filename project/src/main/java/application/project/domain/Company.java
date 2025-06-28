@@ -1,4 +1,4 @@
-package application.project.domain.Company;
+package application.project.domain;
 
 import java.time.Instant;
 

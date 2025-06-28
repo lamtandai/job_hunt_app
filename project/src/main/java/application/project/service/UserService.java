@@ -12,16 +12,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import application.project.domain.Exception.IdInvalidException;
+import application.project.domain.Exception.InvalidException;
+import application.project.domain.User_account;
 import application.project.domain.dto.request.ReqUserRegisterDTO;
 import application.project.domain.dto.request.ReqUserUpdateDTO;
 import application.project.domain.dto.response.PageMetadata;
 import application.project.domain.dto.response.ResUserDTO;
 import application.project.domain.dto.response.ResultReturnedDTO;
-import application.project.domain.User.User_account;
 import application.project.repository.FilterableJdbcRepository;
-import application.project.repository.UserRepository;
 import application.project.repository.JdbcSpecification.IjdbcSpecification;
+import application.project.repository.UserRepository;
 import application.project.util.Mapper.UserMapper;
 
 @Service
@@ -94,7 +94,7 @@ public class UserService {
                         conditions.add("us_phone = :us_phone");
                         value_for_update.put("us_phone", dto.getPhone());
                     }
-                    
+
                     if (dto.getUser_gender() != null && !dto.getUser_gender().equals(user.getUs_gender())) {
                         conditions.add("us_gender = :us_gender");
                         value_for_update.put("us_gender", dto.getUser_gender().name());
@@ -105,7 +105,7 @@ public class UserService {
                         value_for_update.put("us_role", dto.getUser_role().name());
                     }
 
-                    if (dto.getCpn_id() != 0 && dto.getCpn_id() != user.getUs_cpn_id()){
+                    if (dto.getCpn_id() != 0 ) {
                         conditions.add("us_cpn_id = :us_cpn_id");
                         value_for_update.put("us_cpn_id", dto.getCpn_id());
                     }
@@ -121,7 +121,7 @@ public class UserService {
     public boolean handleUserNameExist(String username) {
         return this.userRepository.findByUserName(username).isPresent();
     }
-    
+
     public <T> ResultReturnedDTO handleGetAllUserByFilter(
 
             IjdbcSpecification<T> spec,
@@ -163,13 +163,13 @@ public class UserService {
         this.userRepository.deleteUserRefreshToken(id);
     }
 
-    public void handleDeleteUserById(long id) throws IdInvalidException{
-        Optional <User_account> userOpt = handleGetOneUser(id);
-        if (userOpt.isPresent() && !userOpt.get().isUs_deleted()){
+    public void handleDeleteUserById(long id) throws InvalidException {
+        Optional<User_account> userOpt = handleGetOneUser(id);
+        if (userOpt.isPresent() && !userOpt.get().isUs_deleted()) {
             this.userRepository.deleteUserById(id);
             return;
         }
 
-        throw new IdInvalidException(id);
+        throw new InvalidException(String.valueOf(id));
     }
 }

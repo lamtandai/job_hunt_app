@@ -10,8 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import application.project.domain.Company.Company;
-import application.project.domain.Exception.IdInvalidException;
+import application.project.domain.Company;
+import application.project.domain.Exception.InvalidException;
 import application.project.domain.dto.request.ReqCompanyDTO;
 import application.project.domain.dto.response.PageMetadata;
 import application.project.domain.dto.response.ResultReturnedDTO;
@@ -27,7 +27,8 @@ public class CompanyService {
     private final UserRepository userRepository;
     private final FilterableJdbcRepository repo;
 
-    public CompanyService(CompanyRepository companyRepository, FilterableJdbcRepository repo, UserRepository userRepository) {
+    public CompanyService(CompanyRepository companyRepository, FilterableJdbcRepository repo,
+            UserRepository userRepository) {
         this.companyRepository = companyRepository;
         this.repo = repo;
         this.userRepository = userRepository;
@@ -141,14 +142,14 @@ public class CompanyService {
         });
     }
 
-    public void handleDeleteCompany(int cpn_id) throws IdInvalidException {
-        Optional <Company> cpnOpt = handleGetOneCompany(cpn_id);
-        if (cpnOpt.isPresent() && !cpnOpt.get().isCpn_deleted()){
+    public void handleDeleteCompany(int cpn_id) throws InvalidException {
+        Optional<Company> cpnOpt = handleGetOneCompany(cpn_id);
+        if (cpnOpt.isPresent() && !cpnOpt.get().isCpn_deleted()) {
             this.userRepository.deleteUserByCompanyId(cpn_id);
             this.companyRepository.delete(cpn_id);
             return;
         }
-        throw new IdInvalidException((long) cpn_id);
+        throw new InvalidException(String.valueOf(cpn_id));
 
     }
 }

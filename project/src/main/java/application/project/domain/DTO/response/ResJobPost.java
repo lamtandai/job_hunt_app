@@ -1,8 +1,6 @@
-package application.project.domain.dto.request;
+package application.project.domain.dto.response;
 import java.time.Instant;
-import java.util.List;
 
-import application.project.domain.Enumeration.JobStatus.JobStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReqJobPostDTO {
+public class ResJobPost {
 
+    private long jp_id;
     private long jpRecruiterId;
     private long jpUpdatedBy;
 
@@ -22,14 +21,13 @@ public class ReqJobPostDTO {
     private String jpTitle;
     private String jpDescription;
     private String jpSalaryRange;
-    private JobStatus jpStatus;
-    private String location; 
-    private List <Integer> jpSkills;
+    private String jpStatus;
 
     private boolean jpDeleted;
-
+    
     private Instant jpPostedAt;
     private Instant jpExpiredAt;
-   
+    private Instant jpCreatedAt;
+    private Instant jpUpdatedAt;
     
 }

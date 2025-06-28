@@ -16,7 +16,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import application.project.domain.Company.Company;
+import application.project.domain.Company;
 import application.project.domain.dto.request.ReqCompanyDTO;
 
 @Repository

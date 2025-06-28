@@ -16,8 +16,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import application.project.domain.User_account;
 import application.project.domain.Enumeration.UserRole;
-import application.project.domain.User.User_account;
 import application.project.domain.dto.request.ReqUserRegisterDTO;
 
 @Repository

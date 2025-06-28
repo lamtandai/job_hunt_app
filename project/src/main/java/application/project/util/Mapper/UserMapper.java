@@ -1,6 +1,6 @@
 package application.project.util.Mapper;
 
-import application.project.domain.User.User_account;
+import application.project.domain.User_account;
 import application.project.domain.dto.response.ResUserDTO;
 
 public class UserMapper {

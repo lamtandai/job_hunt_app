@@ -19,19 +19,12 @@ CREATE TABLE IF NOT EXISTS membership_durations(
 CREATE TABLE IF NOT EXISTS industries(
     idt_id TINYINT AUTO_INCREMENT PRIMARY KEY,
     idt_name VARCHAR(50) NOT NULL DEFAULT 'BLANK',
-    idt_activated BOOLEAN DEFAULT TRUE,
+    idt_deleted BOOLEAN DEFAULT TRUE,
     idt_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     idt_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS skills(
-    sk_id TINYINT AUTO_INCREMENT PRIMARY KEY,
-    sk_name VARCHAR(50) NOT NULL,
-    sk_activated BOOLEAN DEFAULT TRUE,
-    sk_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    sk_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    
-);
+
 CREATE TABLE IF NOT EXISTS companies(
 
     cpn_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -71,16 +64,14 @@ CREATE TABLE IF NOT EXISTS user_accounts(
     us_refresh_token MEDIUMTEXT ,
     us_active BOOLEAN DEFAULT TRUE ,
     us_deleted BOOLEAN DEFAULT FALSE,
-    us_cpn_id INT DEFAULT NULL, -- changed from DEFAULT 0 to DEFAULT NULL
-
+    us_cpn_id INT DEFAULT NULL,
+ -- changed from DEFAULT 0 to DEFAULT NUL
     us_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     us_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (us_cpn_id) REFERENCES companies(cpn_id)
 
-
 ); 
-
 
 CREATE TABLE IF NOT EXISTS user_logs (
     usl_user_account_id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -92,36 +83,51 @@ CREATE TABLE IF NOT EXISTS user_logs (
 
 CREATE TABLE IF NOT EXISTS jobPosts(
     jp_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    jp_recruiter_id BIGINT ,
+    jp_recruiter_id BIGINT NOT NULL,
 
-    jp_title VARCHAR(255) DEFAULT 'BLANK',
+    jp_title VARCHAR(100) DEFAULT 'BLANK',
+    jp_salary_range VARCHAR(30) DEFAULT 'BLANK',
+    jp_status VARCHAR(10) DEFAULT 'BLANK',
+    jp_location VARCHAR(50) DEFAULT 'BLANK',
 
-    jp_description VARCHAR(255) DEFAULT 'BLANK',
-    jp_salary_range VARCHAR(50) DEFAULT 'BLANK',
-    
-    jp_status VARCHAR(50) DEFAULT 'BLANK',
+    jp_description LONGTEXT ,
     jp_number_of_recruitment TINYINT DEFAULT 0,
+    jp_cpn_id int NOT NULL,
+    jp_deleted BOOLEAN DEFAULT false,
+    
+    jp_updated_by BIGINT NOT NULL,
 
-    jp_posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    jp_posted_at TIMESTAMP,
     jp_expired_at TIMESTAMP,
-
-    jp_created_by BIGINT,
-    jp_updated_by BIGINT,
 
     jp_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     jp_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (jp_created_by) REFERENCES user_accounts(us_account_id),
-    FOREIGN KEY (jp_updated_by) REFERENCES user_accounts(us_account_id),
-    FOREIGN KEY (jp_recruiter_id) REFERENCES user_accounts(us_account_id)
-   
+    FOREIGN KEY (jp_cpn_id) REFERENCES companies(cpn_id),
+    FOREIGN KEY (jp_recruiter_id) REFERENCES user_accounts(us_account_id),
+    FOREIGN KEY (jp_updated_by) REFERENCES user_accounts(us_account_id)
+    
 );
 
+CREATE TABLE IF NOT EXISTS skills(
+    sk_id INT AUTO_INCREMENT PRIMARY KEY,
+    sk_name VARCHAR(30) NOT NULL,
+    sk_deleted BOOLEAN DEFAULT FALSE,
+    sk_created_by BIGINT,
+    sk_updated_by BIGINT,
+
+    sk_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sk_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (sk_created_by) REFERENCES user_accounts(us_account_id),
+    FOREIGN KEY (sk_updated_by) REFERENCES user_accounts(us_account_id)
+    
+);
 
 CREATE TABLE IF NOT EXISTS applications(
     app_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    app_us_id BIGINT ,
-    app_jp_id BIGINT,
+    app_us_id BIGINT NOT NULL ,
+    app_jp_id BIGINT NOT NULL,
     app_status VARCHAR(10) ,
 
     app_apply_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
@@ -130,14 +136,22 @@ CREATE TABLE IF NOT EXISTS applications(
     FOREIGN KEY (app_jp_id) REFERENCES jobPosts(jp_id)
 
 );
+CREATE TABLE IF NOT EXISTS company_has_jobPosts(
+    cpn_id INT NOT NULL,
+    jp_id BIGINT NOT NULL,
 
+    FOREIGN KEY(cpn_id) REFERENCES companies(cpn_id),
+    FOREIGN KEY(jp_id) REFERENCES jobPosts(jp_id)
+    
+);
 CREATE TABLE IF NOT EXISTS skills_for_jobPost(
     jp_id BIGINT ,
-    sk_id TINYINT ,
+    sk_id INT ,
 
     PRIMARY KEY(jp_id, sk_id),
-    FOREIGN KEY(jp_id) REFERENCES jobPosts(jp_id),
-    FOREIGN KEY(sk_id) REFERENCES skills(sk_id)
+    FOREIGN KEY(sk_id) REFERENCES skills(sk_id),
+    FOREIGN KEY(jp_id) REFERENCES jobPosts(jp_id)
+    
 );
 
 CREATE TABLE IF NOT EXISTS user_memberships (
@@ -148,4 +162,14 @@ CREATE TABLE IF NOT EXISTS user_memberships (
   PRIMARY KEY (user_id, start_date),
   FOREIGN KEY (user_id) REFERENCES user_accounts(us_account_id),
   FOREIGN KEY (membership_id) REFERENCES memberships(mbs_id)
+);
+
+CREATE TABLE IF NOT EXISTS users_belong_to_companies(
+    cpn_id INT NOT NULL,
+    us_account_id BIGINT NOT NULL,
+
+    PRIMARY KEY (cpn_id, us_account_id ),
+    FOREIGN KEY (cpn_id) REFERENCES companies(cpn_id),
+    FOREIGN KEY (us_account_id) REFERENCES user_accounts(us_account_id)
+
 );

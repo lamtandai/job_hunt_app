@@ -16,9 +16,9 @@ import application.project.domain.dto.request.ReqUserRegisterDTO;
 import application.project.domain.dto.request.ReqUserUpdateDTO;
 import application.project.domain.dto.response.ResUserDTO;
 import application.project.domain.dto.response.ResultReturnedDTO;
+import application.project.domain.User_account;
 import application.project.domain.Exception.EmailExistException;
-import application.project.domain.Exception.IdInvalidException;
-import application.project.domain.User.User_account;
+import application.project.domain.Exception.InvalidException;
 import application.project.domain.dto.response.RestResponse;
 import application.project.repository.JdbcSpecification.JdbcFilterSpecification;
 import application.project.service.UserService;
@@ -50,10 +50,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResUserDTO> getUserById(@PathVariable Long id) throws IdInvalidException {
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable Long id) throws InvalidException {
         return this.userService.handleGetOneUser(id)
                 .map(user -> ResponseEntity.status(HttpStatus.ACCEPTED).body(UserMapper.toUserResponse(user)))
-                .orElseThrow(() -> new IdInvalidException(id));
+                .orElseThrow(() -> new InvalidException(String.valueOf(id)));
     }
 
     @GetMapping()
@@ -69,11 +69,11 @@ public class UserController {
     public ResponseEntity<RestResponse> deleteUserById(@PathVariable Long id) {
         this.userService.handleDeleteUserById(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                             .body(RestResponse
-                                    .builder()
-                                    .setMessage("Delete successfully!")
-                                    .setStatusCode(HttpStatus.ACCEPTED.value())
-                                    .build());
+                .body(RestResponse
+                        .builder()
+                        .setMessage("Delete successfully!")
+                        .setStatusCode(HttpStatus.ACCEPTED.value())
+                        .build());
     }
 
     @PatchMapping("/{id}")

@@ -3,7 +3,7 @@ package application.project.domain.dto.response;
 import java.time.Instant;
 
 import application.project.domain.Enumeration.UserRole;
-import application.project.domain.User.User_account;
+import application.project.domain.User_account;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,9 +16,9 @@ public class ResUserDTO {
     private String us_avatar;
     private String us_phone;
     private UserRole us_role;
-    private int us_cpn_id;
     private Instant us_createdAt;
     private Instant us_updatedAt;
+    private Integer us_cpn_id;
 
     public ResUserDTO(User_account user) {
         this.us_account_id = user.getUs_account_id();

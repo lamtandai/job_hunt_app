@@ -1,7 +1,5 @@
 package application.project.domain.dto.request;
 
-import java.time.Instant;
-
 import application.project.domain.Enumeration.UserGender;
 import application.project.domain.Enumeration.UserRole;
 import lombok.AllArgsConstructor;
@@ -15,7 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ReqUserUpdateDTO {
 
-    private String username;
     private String password;
     private String email;
     private String avatar;
