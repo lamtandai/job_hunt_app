@@ -27,7 +27,6 @@ public class ResJobPost {
     
     private Instant jpPostedAt;
     private Instant jpExpiredAt;
-    private Instant jpCreatedAt;
-    private Instant jpUpdatedAt;
+    
     
 }

@@ -10,3 +10,13 @@ security:
 
 basepath:
     baseApi: /api/v1/
+    baseUri: file:///C:/Users/ASUS/OneDrive/Desktop/javaLearning/New%20folder/upload/
+
+file:
+    spring:
+      servlet:
+        multipart:
+          max-file-size: 52428800
+          max-request-size: 52428800
+    allowedExtension: pdf,jpg,jpeg,png,doc,docx
+    allowedMimeTypes: application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document

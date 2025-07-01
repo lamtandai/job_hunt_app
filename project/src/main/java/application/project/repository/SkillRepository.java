@@ -1,8 +1,14 @@
 package application.project.repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import application.project.domain.Skill;
 import application.project.domain.dto.request.ReqSkill;
+import application.project.repository.JdbcSpecification.IjdbcSpecification;
 import application.project.util.SecurityUtil.SecurityUtil;
 
 @Repository
@@ -95,4 +102,59 @@ public class SkillRepository {
         return row;
     }
 
+    public  <T>Page<T> findAll(
+            IjdbcSpecification<T> spec,
+            Pageable pageable) {
+
+        String base = "SELECT * FROM " + spec.getTableName();
+        String where = spec.toSqlClause();
+        String sql = base + (where.isBlank() ? "" : " WHERE " + where);
+
+        if (pageable.getSort().isSorted()) {
+            String orderBy = pageable.getSort()
+                    .stream()
+                    .map(order -> order.getProperty() + " " + order.getDirection().name())
+                    .collect(Collectors.joining(", "));
+
+            sql += " ORDER BY " + orderBy;
+        }
+
+        sql += " LIMIT :limit OFFSET :offset";
+        Map<String, Object> params = spec.getParameters();
+        params.put("limit", pageable.getPageSize());
+        params.put("offset", pageable.getOffset());
+
+        List<T> list = this.jdbc.query(
+                sql,
+                params,
+                new BeanPropertyRowMapper<>(spec.getEntityClass()));
+
+        String countSql = "SELECT COUNT(*) FROM " + spec.getTableName() + (where.isBlank() ? "" : " WHERE " + where);
+        int total = this.jdbc.queryForObject(countSql, params, Integer.class);
+
+        return new PageImpl<>(list, pageable, total);
+    }
+
+    public List<Integer> checkSkillsExist(List<String>skills){
+        if (skills == null || skills.isEmpty()){
+            return List.of();
+        }   
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        StringBuilder derivedTable = new StringBuilder();
+        for (int i = 0; i < skills.size(); i++){
+            derivedTable.append("SELECT :").append(skills.get(i)).append(" AS sk_id");
+            if (i < skills.size() - 1){
+                derivedTable.append(" UNION ALL ");
+            }
+        }
+
+        skills.forEach(skill -> params.addValue(skill, skill));
+
+        String query = "SELECT v.sk_id FROM ( " + derivedTable + " ) AS v" +
+                    " Left JOIN skills s ON v.sk_id = s.sk_id"+
+                    " WHERE s.sk_id is NULL" ;
+        
+        return jdbc.queryForList(query, params, Integer.class);
+    }
+    
 }

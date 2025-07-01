@@ -1,5 +1,6 @@
 package application.project.domain;
 import java.time.Instant;
+import java.util.List;
 
 import application.project.domain.Enumeration.JobStatus.JobStatus;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,9 @@ public class JobPost {
     private String jpDescription;
     private String jpSalaryRange;
     private String jp_location;
+    private List<String> jpSkills;
     private JobStatus jpStatus;
-
+    
     private long jpUpdatedBy;
 
     private boolean jpDeleted;

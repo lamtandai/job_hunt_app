@@ -14,8 +14,6 @@ CREATE TABLE IF NOT EXISTS membership_durations(
     duration_value TINYINT NOT NULL DEFAULT 1
 );
 
-
-
 CREATE TABLE IF NOT EXISTS industries(
     idt_id TINYINT AUTO_INCREMENT PRIMARY KEY,
     idt_name VARCHAR(50) NOT NULL DEFAULT 'BLANK',
@@ -23,7 +21,6 @@ CREATE TABLE IF NOT EXISTS industries(
     idt_createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     idt_updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
 
 CREATE TABLE IF NOT EXISTS companies(
 
@@ -136,15 +133,8 @@ CREATE TABLE IF NOT EXISTS applications(
     FOREIGN KEY (app_jp_id) REFERENCES jobPosts(jp_id)
 
 );
-CREATE TABLE IF NOT EXISTS company_has_jobPosts(
-    cpn_id INT NOT NULL,
-    jp_id BIGINT NOT NULL,
 
-    FOREIGN KEY(cpn_id) REFERENCES companies(cpn_id),
-    FOREIGN KEY(jp_id) REFERENCES jobPosts(jp_id)
-    
-);
-CREATE TABLE IF NOT EXISTS skills_for_jobPost(
+CREATE TABLE IF NOT EXISTS skills_for_jobPosts(
     jp_id BIGINT ,
     sk_id INT ,
 
@@ -164,12 +154,3 @@ CREATE TABLE IF NOT EXISTS user_memberships (
   FOREIGN KEY (membership_id) REFERENCES memberships(mbs_id)
 );
 
-CREATE TABLE IF NOT EXISTS users_belong_to_companies(
-    cpn_id INT NOT NULL,
-    us_account_id BIGINT NOT NULL,
-
-    PRIMARY KEY (cpn_id, us_account_id ),
-    FOREIGN KEY (cpn_id) REFERENCES companies(cpn_id),
-    FOREIGN KEY (us_account_id) REFERENCES user_accounts(us_account_id)
-
-);

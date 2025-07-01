@@ -3,6 +3,9 @@ import java.time.Instant;
 import java.util.List;
 
 import application.project.domain.Enumeration.JobStatus.JobStatus;
+import application.project.util.CustomAnnotation.OnlyNaturalNumbers;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,18 +16,21 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ReqJobPostDTO {
 
-    private long jpRecruiterId;
-    private long jpUpdatedBy;
-
     private byte jpNumberOfRecruitment ;
-    private int jpCpnId;
 
+    @NotBlank(message="This field cannot be blank!")
     private String jpTitle;
+    @NotBlank(message="This field cannot be blank!")
     private String jpDescription;
+    @NotBlank(message="This field cannot be blank!")
     private String jpSalaryRange;
+    @NotNull
     private JobStatus jpStatus;
+    @NotBlank(message="This field cannot be blank!")
     private String location; 
-    private List <Integer> jpSkills;
+
+    @OnlyNaturalNumbers
+    private List<String> jpSkills;
 
     private boolean jpDeleted;
 

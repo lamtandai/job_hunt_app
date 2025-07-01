@@ -1,11 +1,10 @@
 package application.project.util.Mapper;
 
 import application.project.domain.Skill;
-import application.project.domain.dto.response.ResultReturnedDTO;
+import application.project.domain.dto.response.ResSkillDTO;
 
 public class SkillMapper {
-    public static ResultReturnedDTO toSkillResponse(Skill skill) {
-        // Implement mapping logic as needed
-        return new ResultReturnedDTO(null, skill);
+    public static ResSkillDTO toSkillResponse(Skill skill){
+        return new ResSkillDTO(skill);
     }
 }

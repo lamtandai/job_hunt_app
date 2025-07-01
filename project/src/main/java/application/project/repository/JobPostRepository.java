@@ -66,7 +66,7 @@ public class JobPostRepository {
         List<String> conditions =  (List<String>)conditionsAndValue.get("conditions");
         Map<String, Object> values = (Map<String, Object>) conditionsAndValue.get("values");
 
-        String update_query = " UPDATE skills SET " + String.join(", " ,conditions) + "WHERE jp_id = :id ";
+        String update_query = "UPDATE jobPosts SET " + String.join(", " ,conditions) + " WHERE jp_id = :jp_id ";
                 
         MapSqlParameterSource params = new MapSqlParameterSource()
             .addValue("jp_id", id);
